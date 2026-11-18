@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Mirage — Registrazione Evento</title>
+  <meta name="theme-color" content="#3a0a05" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="design-system/mirage.css" rel="stylesheet" />
+  <style>
+    /* Solo regole specifiche di questa pagina (logo + data) */
+    .logo-date {
+      font-size: 0.7rem;
+      letter-spacing: 0.28em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      margin: 4px 0 18px;
+    }
+    .header h1 { margin-bottom: 10px; }
+    .header > p { font-size: var(--fs-eyebrow); letter-spacing: var(--track-eyebrow); text-transform: uppercase; color: var(--text-faint); }
+    .option-grid.centered { grid-template-columns: calc((100% - var(--space-3)) / 2); justify-content: center; }
+    @media (max-width: 480px) { .option-grid.centered { grid-template-columns: 1fr; } }
+    .guest + .guest { margin-top: 4px; }
+  </style>
+</head>
+<body class="mirage">
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="ornament">
+      <div class="orn-line"></div>
+      <div class="orn-diamond"></div>
+      <div class="orn-line r"></div>
+    </div>
+    <span class="script">Mirage</span>
+    <div class="logo-date">26.11.2026 - qubò club</div>
+    <h1 class="h1">Registrazione <em>Evento</em></h1>
+    <p>Compila il modulo per confermare la tua presenza</p>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+    <form id="reg-form" novalidate>
+
+      <!-- NOME / COGNOME (referente) -->
+      <div class="row">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" placeholder="Mario" required />
+        </div>
+        <div class="form-group">
+          <label for="cognome">Cognome</label>
+          <input type="text" id="cognome" placeholder="Rossi" required />
+        </div>
+      </div>
+
+      <!-- SECTION TITLE -->
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <span class="section-title">Modalità d'ingresso</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <!-- OPTION (unica, già selezionata) -->
+      <div class="option-grid centered">
+        <div class="option">
+          <input type="radio" name="ingresso" id="opt-semplice" value="semplice" checked />
+          <label for="opt-semplice">
+            <span class="icon">🎟️</span>
+            <span class="opt-title">Semplice</span>
+            <span class="opt-sub">Pagamento all'ingresso 10€ consumazione inclusa</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- QUANTITY -->
+      <div class="collapsible visible" id="qty-group">
+        <div class="stepper-box">
+          <label>Quanti siete?</label>
+          <div class="stepper">
+            <button type="button" class="qty-btn" id="qty-minus">−</button>
+            <div class="qty-display" id="qty-display">1</div>
+            <button type="button" class="qty-btn" id="qty-plus">+</button>
+          </div>
+          <p class="qty-note">
+            <span>*</span> Inserisci nome e cognome di ogni persona del gruppo.
+          </p>
+        </div>
+      </div>
+
+      <!-- ALTRI PARTECIPANTI (generati dinamicamente) -->
+      <div id="guests"></div>
+
+      <!-- NOTE -->
+      <div class="section-divider">
+        <div class="section-divider-line"></div>
+        <span class="section-title">Note</span>
+        <div class="section-divider-line"></div>
+      </div>
+
+      <div class="form-group mb-0">
+        <textarea id="note" placeholder="Eventuali richieste o informazioni aggiuntive…"></textarea>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="mt-5">
+        <button type="submit" class="btn" id="btn-submit">
+          <span id="btn-label">Conferma Registrazione</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="overlay" id="success-overlay">
+  <div class="diamond">
+    <div class="diamond-inner">✦</div>
+  </div>
+  <div class="h1 text-center" style="margin-bottom:6px;">Registrazione<br><em>Confermata</em></div>
+  <div class="eyebrow muted" style="margin-bottom:28px;">La tua presenza è stata registrata</div>
+  <div class="detail-box" id="success-detail" style="margin-bottom:28px;"></div>
+  <button class="btn btn-auto" id="success-new-btn">
+    <span>+ Nuova Registrazione</span>
+  </button>
+</div>
+
+<script>
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxhOQ3AmhwsEcnmVVTHNlu9mGNDb_iOARD8a_oH773aibYnSgg7Qg6Z41AFr30s88Iz/exec';
+  const MAX_QTY = 20;
+
+  const qtyMinus  = document.getElementById('qty-minus');
+  const qtyPlus   = document.getElementById('qty-plus');
+  const qtyDisp   = document.getElementById('qty-display');
+  const guestsEl  = document.getElementById('guests');
+  const btnSubmit = document.getElementById('btn-submit');
+  const btnLabel  = document.getElementById('btn-label');
+  let qty = 1;
+
+  // Referral: link tipo index.html?ref=marco → "marco"; senza ref → "diretto"
+  const REF = (() => {
+    let r = (new URLSearchParams(location.search).get('ref') || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
+    try {
+      if (r) localStorage.setItem('mirage_ref', r);
+      else r = localStorage.getItem('mirage_ref') || '';
+    } catch (e) {}
+    return r || 'diretto';
+  })();
+
+  const escapeHtml = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // Crea/rimuove le sezioni "Persona 2…N" mantenendo i valori già inseriti
+  function renderGuests() {
+    const current = guestsEl.querySelectorAll('.guest');
+    for (let i = current.length + 2; i <= qty; i++) {
+      const g = document.createElement('div');
+      g.className = 'guest';
+      g.innerHTML = `
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <span class="section-title">Persona ${i}</span>
+          <div class="section-divider-line"></div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label for="nome-${i}">Nome</label>
+            <input type="text" id="nome-${i}" class="g-nome" required />
+          </div>
+          <div class="form-group">
+            <label for="cognome-${i}">Cognome</label>
+            <input type="text" id="cognome-${i}" class="g-cognome" required />
+          </div>
+        </div>`;
+      guestsEl.appendChild(g);
+    }
+    for (let i = current.length + 1; i > qty; i--) {
+      guestsEl.lastElementChild.remove();
+    }
+  }
+
+  qtyMinus.addEventListener('click', () => { if (qty > 1)       { qty--; qtyDisp.textContent = qty; renderGuests(); } });
+  qtyPlus.addEventListener('click',  () => { if (qty < MAX_QTY) { qty++; qtyDisp.textContent = qty; renderGuests(); } });
+
+  document.getElementById('reg-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const nome    = document.getElementById('nome').value.trim();
+    const cognome = document.getElementById('cognome').value.trim();
+    const note    = document.getElementById('note').value.trim();
+
+    if (!nome || !cognome) { alert('Per favore, inserisci nome e cognome.'); return; }
+
+    const persone = [{ nome, cognome }];
+    const guests = guestsEl.querySelectorAll('.guest');
+    for (let i = 0; i < guests.length; i++) {
+      const n = guests[i].querySelector('.g-nome').value.trim();
+      const c = guests[i].querySelector('.g-cognome').value.trim();
+      if (!n || !c) {
+        alert(`Per favore, inserisci nome e cognome della persona ${i + 2}.`);
+        guests[i].querySelector(n ? '.g-cognome' : '.g-nome').focus();
+        return;
+      }
+      persone.push({ nome: n, cognome: c });
+    }
+
+    btnSubmit.disabled = true;
+    btnLabel.textContent = 'Invio in corso…';
+
+    // Una riga sul Google Sheet per ogni persona
+    const referente = `${nome} ${cognome}`;
+    for (let i = 0; i < persone.length; i++) {
+      const p = persone[i];
+      const formData = new FormData();
+      formData.append('nome',    p.nome);
+      formData.append('cognome', p.cognome);
+      formData.append('email',   '');
+      formData.append('tipo',    'lista');
+      formData.append('qty',     1);
+      formData.append('ref',     REF);
+      formData.append('note',    `[PR: ${REF}] ` + (i === 0
+        ? (persone.length > 1 ? `[Referente gruppo di ${persone.length}] ` : '') + note
+        : `Con ${referente}`));
+      try {
+        await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: formData });
+      } catch (err) { console.warn(err); }
+    }
+
+    document.getElementById('success-detail').innerHTML =
+      `<strong>Nome:</strong> ${escapeHtml(referente)}<br>` +
+      `<strong>Ingresso:</strong> semplice<br>` +
+      `<strong>Persone:</strong> ${persone.length}`;
+
+    document.getElementById('success-overlay').classList.add('show');
+    btnSubmit.disabled = false;
+    btnLabel.textContent = 'Conferma Registrazione';
+  });
+
+  document.getElementById('success-new-btn').addEventListener('click', function() {
+    document.getElementById('success-overlay').classList.remove('show');
+    document.getElementById('reg-form').reset();
+    qty = 1;
+    qtyDisp.textContent = qty;
+    renderGuests();
+  });
+</script>
+
+</body>
+</html>

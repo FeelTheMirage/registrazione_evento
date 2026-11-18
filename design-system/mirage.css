@@ -1,0 +1,684 @@
+/* ============================================================================
+   MIRAGE — DESIGN SYSTEM
+   ----------------------------------------------------------------------------
+   Sistema di design riutilizzabile per tutte le pagine del progetto Mirage.
+   Estetica: brace ardente / ember, accenti oro, eleganza serale.
+
+   USO:
+     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet" />
+     <link href="design-system/mirage.css" rel="stylesheet" />
+     <body class="mirage">  ...  </body>
+
+   INDICE:
+     1. Tokens (custom properties)
+     2. Reset & base
+     3. Sfondo (background ember)
+     4. Tipografia (script, titoli, eyebrow, label)
+     5. Layout (wrapper, row, grid)
+     6. Ornamenti & divider
+     7. Card
+     8. Form (input, textarea, select)
+     9. Option cards (radio/checkbox)
+    10. Notice / banner
+    11. Stepper (quantità)
+    12. Bottoni
+    13. Badge & chip
+    14. Overlay / success
+    15. Utilities
+   ============================================================================ */
+
+
+/* ── 1. TOKENS ─────────────────────────────────────────────────────────── */
+:root {
+  /* Brand — oro */
+  --gold:        #c9a84c;
+  --gold-light:  #e0c070;
+  --gold-dim:    rgba(201, 168, 76, 0.12);
+
+  /* Brand — fuoco / ember */
+  --orange:        #c85a20;
+  --orange-light:  #e07030;
+  --ember-base:    #3a0a05;
+  --ember-1:       #b84010;
+  --ember-2:       #7a1a05;
+  --ember-3:       #5c1008;
+
+  /* Testo */
+  --text:        #f5f0e8;
+  --text-muted:  #b8a898;
+  --text-faint:  rgba(200, 180, 160, 0.70);
+  --text-invert: #1a0800;
+
+  /* Superfici */
+  --card-bg:      rgba(28, 12, 8, 0.78);
+  --card-border:  rgba(180, 100, 50, 0.35);
+  --surface-deep: rgba(10, 3, 1, 0.40);
+
+  /* Input */
+  --input-bg:      rgba(18, 6, 3, 0.65);
+  --input-bg-focus:rgba(30, 10, 5, 0.80);
+  --input-border:  rgba(160, 80, 40, 0.40);
+  --input-focus:   rgba(201, 168, 76, 0.50);
+  --placeholder:   rgba(160, 130, 110, 0.50);
+
+  /* Tipografia — famiglie */
+  --font-script:  'Great Vibes', cursive;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'Montserrat', system-ui, sans-serif;
+
+  /* Tipografia — scala (fluida dove utile) */
+  --fs-script:  clamp(3.5rem, 10vw, 5.5rem);
+  --fs-h1:      clamp(2rem, 6vw, 3rem);
+  --fs-h2:      clamp(1.5rem, 4vw, 2rem);
+  --fs-h3:      1.3rem;
+  --fs-lg:      1.1rem;
+  --fs-body:    0.88rem;
+  --fs-sm:      0.78rem;
+  --fs-xs:      0.68rem;
+  --fs-eyebrow: 0.65rem;
+
+  /* Tracking (letter-spacing) ricorrenti */
+  --track-eyebrow: 0.22em;
+  --track-label:   0.20em;
+  --track-btn:     0.24em;
+
+  /* Spaziatura */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 28px;
+  --space-7: 36px;
+  --space-8: 48px;
+
+  /* Raggi */
+  --radius:    4px;   /* controlli: input, bottoni, chip */
+  --radius-lg: 8px;   /* card */
+  --radius-full: 999px;
+
+  /* Ombre */
+  --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.50),
+                 inset 0 1px 0 rgba(255, 180, 100, 0.08);
+  --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.35);
+
+  /* Transizioni */
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:    0.2s;
+  --t-base:    0.25s;
+  --t-slow:    0.35s;
+
+  /* Layout */
+  --content-max: 560px;
+}
+
+
+/* ── 2. RESET & BASE ───────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+button, label, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+img, svg { display: block; max-width: 100%; }
+
+
+/* ── 3. SFONDO EMBER ───────────────────────────────────────────────────── */
+/* Applica a <body class="mirage"> oppure a qualsiasi contenitore full-screen. */
+.mirage,
+.mirage-bg {
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 300;
+  position: relative;
+  background:
+    radial-gradient(ellipse 90% 70% at 30% 20%, var(--ember-1) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 80% at 80% 60%, var(--ember-2) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 90% at 50% 50%, var(--ember-3) 0%, transparent 80%),
+    var(--ember-base);
+}
+
+.mirage {
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: var(--space-7) var(--space-4) var(--space-8);
+  padding-left:  max(var(--space-4), env(safe-area-inset-left));
+  padding-right: max(var(--space-4), env(safe-area-inset-right));
+  padding-bottom:max(var(--space-8), env(safe-area-inset-bottom));
+  overflow-x: hidden;
+}
+
+/* Vignettatura morbida sui bordi */
+.mirage::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 40%, rgba(10, 2, 0, 0.45) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+/* ── 4. TIPOGRAFIA ─────────────────────────────────────────────────────── */
+.script {
+  font-family: var(--font-script);
+  font-size: var(--fs-script);
+  color: #ffffff;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.h1, h1.mirage-h {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  color: var(--text);
+}
+.h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  color: var(--text);
+}
+.h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+/* Corsivo dorato per enfasi nei titoli display */
+.h1 em, .h2 em, .h3 em, .mirage-h em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+/* Etichetta in maiuscoletto sopra/sotto i titoli */
+.eyebrow {
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--track-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.eyebrow.muted { color: var(--text-faint); }
+
+/* Testo corrente */
+.body  { font-size: var(--fs-body); font-weight: 400; line-height: 1.6; }
+.muted { color: var(--text-muted); }
+
+
+/* ── 5. LAYOUT ─────────────────────────────────────────────────────────── */
+.wrapper {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
+  animation: mirageFadeUp 0.8s var(--ease) both;
+}
+
+@keyframes mirageFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.header { text-align: center; margin-bottom: var(--space-7); }
+
+
+/* ── 6. ORNAMENTI & DIVIDER ────────────────────────────────────────────── */
+/* Filetto con diamante centrale — uso: titolo di sezione decorato. */
+.ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: var(--space-2);
+}
+.orn-line {
+  height: 1px;
+  width: 36px;
+  background: linear-gradient(90deg, transparent, var(--gold));
+}
+.orn-line.r { background: linear-gradient(90deg, var(--gold), transparent); }
+
+.orn-diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+/* Divider con label centrale */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-5);
+}
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--card-border);
+}
+.section-title {
+  font-size: 0.63rem;
+  letter-spacing: var(--track-eyebrow);
+  text-transform: uppercase;
+  color: var(--gold-light);
+  white-space: nowrap;
+}
+
+
+/* ── 7. CARD ───────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  position: relative;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-card);
+}
+
+
+/* ── 8. FORM ───────────────────────────────────────────────────────────── */
+.form-group { margin-bottom: var(--space-5); }
+.form-group:last-child { margin-bottom: 0; }
+
+label,
+.label {
+  display: block;
+  font-size: var(--fs-eyebrow);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+  transition: color var(--t-base);
+}
+.form-group:focus-within > label { color: var(--gold-light); }
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+textarea,
+select,
+.input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  outline: none;
+  transition: border-color var(--t-base), background var(--t-base);
+}
+
+textarea { resize: vertical; min-height: 80px; }
+
+input:focus,
+textarea:focus,
+select:focus,
+.input:focus {
+  border-color: var(--input-focus);
+  background: var(--input-bg-focus);
+}
+
+::placeholder { color: var(--placeholder); }
+
+
+/* ── 9. OPTION CARDS (radio / checkbox) ────────────────────────────────── */
+.option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.option { position: relative; }
+
+.option input[type="radio"],
+.option input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px 12px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.3;
+  user-select: none;
+  background: rgba(10, 3, 1, 0.30);
+  transition: all var(--t-base);
+}
+
+.option .icon     { font-size: 1.6rem; line-height: 1; }
+.option .opt-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  display: block;
+}
+.option .opt-sub {
+  font-size: 0.67rem;
+  letter-spacing: 0.05em;
+  display: block;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.option label:hover {
+  border-color: rgba(180, 90, 40, 0.50);
+  color: var(--text);
+}
+.option input:checked + label {
+  border-color: rgba(180, 90, 40, 0.70);
+  background: rgba(120, 40, 10, 0.30);
+}
+.option input:checked + label .opt-title { color: var(--gold-light); }
+
+
+/* ── 10. NOTICE / BANNER ───────────────────────────────────────────────── */
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(120, 40, 10, 0.50);
+  border: 1px solid rgba(180, 80, 30, 0.40);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+}
+.notice .notice-icon {
+  flex-shrink: 0;
+  color: var(--gold-light);
+  width: 28px;
+  height: 28px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+.notice p {
+  font-size: var(--fs-sm);
+  color: rgba(220, 200, 180, 0.90);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+.notice p strong { color: var(--orange-light); font-weight: 500; }
+
+
+/* ── 11. STEPPER (quantità) ────────────────────────────────────────────── */
+.stepper-box {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 18px;
+  background: var(--surface-deep);
+}
+.stepper {
+  display: flex;
+  align-items: center;
+}
+.qty-btn {
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  border: 1px solid var(--card-border);
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--t-fast), border-color var(--t-fast);
+  flex-shrink: 0;
+}
+.qty-btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.qty-btn:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
+.qty-btn:hover { background: var(--gold-dim); border-color: var(--gold); }
+
+.qty-display {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-left: none;
+  border-right: none;
+  height: 38px;
+  line-height: 38px;
+  background: transparent;
+}
+
+.qty-note {
+  margin-top: 10px;
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.qty-note span { color: var(--gold); }
+
+/* Pannello collassabile (reveal animato) */
+.collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: max-height 0.4s var(--ease), opacity var(--t-slow) var(--ease),
+              transform var(--t-slow) var(--ease), margin-top var(--t-slow) var(--ease);
+}
+.collapsible.visible {
+  max-height: 240px;
+  opacity: 1;
+  transform: translateY(0);
+  margin-top: var(--space-4);
+}
+
+
+/* ── 12. BOTTONI ───────────────────────────────────────────────────────── */
+/* Outline oro con riempimento animato da sinistra (default del brand). */
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: var(--track-btn);
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  transition: color var(--t-slow);
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-slow) var(--ease);
+  z-index: 0;
+}
+.btn > * { position: relative; z-index: 1; }
+.btn:hover::before { transform: scaleX(1); }
+.btn:hover { color: var(--text-invert); }
+
+.btn:disabled,
+.btn.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:disabled::before,
+.btn.is-disabled::before { transform: scaleX(0) !important; }
+
+/* Variante automatica (larghezza al contenuto) */
+.btn.btn-auto { width: auto; padding-inline: 2rem; }
+
+/* Variante secondaria — outline più tenue */
+.btn.btn-ghost {
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+.btn.btn-ghost::before { background: var(--gold); }
+.btn.btn-ghost:hover { color: var(--text-invert); border-color: var(--gold); }
+
+
+/* ── 13. BADGE & CHIP ──────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-eyebrow);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-full);
+  padding: 5px 12px;
+  background: var(--surface-deep);
+}
+.badge.solid {
+  background: var(--gold-dim);
+  border-color: rgba(201, 168, 76, 0.40);
+}
+
+
+/* ── 14. OVERLAY / SUCCESS ─────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 30% 20%, var(--ember-1) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 80% at 80% 60%, var(--ember-2) 0%, transparent 60%),
+    var(--ember-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s var(--ease);
+}
+.overlay.show { opacity: 1; pointer-events: all; }
+
+/* Emblema a diamante doppio */
+.diamond {
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(201, 168, 76, 0.50);
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.diamond::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+}
+.diamond-inner { transform: rotate(-45deg); font-size: 1.6rem; color: var(--gold-light); }
+
+/* Riquadro riepilogo */
+.detail-box {
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 1.2rem 2rem;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 2;
+  backdrop-filter: blur(6px);
+  background: rgba(28, 12, 8, 0.50);
+  max-width: 320px;
+  width: 100%;
+}
+.detail-box strong { color: var(--gold-light); font-weight: 500; }
+
+
+/* ── 15. UTILITIES ─────────────────────────────────────────────────────── */
+.text-center { text-align: center; }
+.gold        { color: var(--gold-light); }
+.mt-0 { margin-top: 0; }     .mb-0 { margin-bottom: 0; }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.stack-2 > * + * { margin-top: var(--space-2); }
+.stack-4 > * + * { margin-top: var(--space-4); }
+
+
+/* ── RESPONSIVE ────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .card { padding: 24px 18px 28px; }
+  .row { grid-template-columns: 1fr; gap: 0; }
+  .row .form-group:first-child { margin-bottom: var(--space-5); }
+  .option-grid { grid-template-columns: 1fr; gap: 10px; }
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select { font-size: 16px; }   /* evita zoom iOS */
+  .qty-btn { width: 44px; height: 44px; }
+  .qty-display { height: 44px; line-height: 44px; }
+  .btn { padding: 18px; }
+  .script { font-size: 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
