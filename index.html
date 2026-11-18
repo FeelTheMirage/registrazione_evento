@@ -144,14 +144,9 @@
   let qty = 1;
 
   // Referral: link tipo index.html?ref=marco → "marco"; senza ref → "diretto"
-  const REF = (() => {
-    let r = (new URLSearchParams(location.search).get('ref') || '').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '');
-    try {
-      if (r) localStorage.setItem('mirage_ref', r);
-      else r = localStorage.getItem('mirage_ref') || '';
-    } catch (e) {}
-    return r || 'diretto';
-  })();
+  const REF = (new URLSearchParams(location.search).get('ref') || '')
+    .trim().toLowerCase().replace(/[^a-z0-9_-]/g, '') || 'diretto';
+  try { localStorage.removeItem('mirage_ref'); } catch (e) {}
 
   const escapeHtml = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
